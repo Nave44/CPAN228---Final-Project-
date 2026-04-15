@@ -56,6 +56,7 @@ public class FinalProjectController {
             finalRecipes = recipes.stream()
                                     .filter(recipe -> recipe.checkRecipeByStar(stars))
                                     .collect(Collectors.toList());
+            model.addAttribute("selectedStars", stars);
         }   else {
             finalRecipes = recipes;
         }

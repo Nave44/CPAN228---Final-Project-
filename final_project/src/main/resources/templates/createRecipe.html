@@ -87,7 +87,7 @@
     <!-- Ingredients Section -->
     <div class="section-header">
         <label>Ingredients</label>
-        <button type="button" id="add-ingredient" onclick="addIngredient()">+ Add Ingredient</button>
+
     </div>
     <div id="ingredient-list">
         <div class="ingredient-row">
@@ -95,11 +95,12 @@
             <button type="button" class="remove-btn" onclick="removeIngredient(this)">✕</button>
         </div>
     </div>
+    <button type="button" id="add-ingredient" onclick="addIngredient()">+ Add Ingredient</button>
 
     <!-- Instructions Section -->
     <div class="section-header">
         <label>Instructions</label>
-        <button type="button" id="add-instruction" onclick="addInstruction()">+ Add Instruction</button>
+
     </div>
     <div id="instruction-list">
         <div class="instruction-row">
@@ -107,6 +108,7 @@
             <button type="button" class="remove-btn" onclick="removeInstruction(this)">✕</button>
         </div>
     </div>
+    <button type="button" id="add-instruction" onclick="addInstruction()">+ Add Instruction</button> <br/>
 
     <!-- Hidden fields that store the combined strings -->
     <input type="hidden" th:field="*{ingredients}" id="ingredients-hidden"/>

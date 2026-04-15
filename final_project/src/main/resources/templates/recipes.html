@@ -13,24 +13,28 @@
   </header>
 
   <div class="filter-section">
-    <label for="categoryFilter">Filter by category:</label>
-    <select id="categoryFilter" class="filter-select" onchange="filterByCategory()">
-      <option value="">All Categories</option>
-      <option th:each="cat : ${categories}"
-              th:value="${cat.id}"
-              th:text="${cat.name}"
-              th:selected="${selectedCategory != null && selectedCategory == cat.id}">
-      </option>
-    </select>
-    <label for="starFilter">Filter by Stars:</label>
-    <select id="starFilter" class="filter-select" onchange="filterByStars()">
-      <option value="">All Star Ratings</option>
-      <option value="5">5 Stars</option>
-      <option value="4">> 4 Stars</option>
-      <option value="3">> 3 Stars</option>
-      <option value="2">> 2 Stars</option>
-      <option value="1">> 1 Stars</option>
-    </select>
+      <label for="categoryFilter">Filter by category:</label>
+      <select id="categoryFilter" name="category" class="filter-select">
+        <option value="">All Categories</option>
+        <option th:each="cat : ${categories}"
+                th:value="${cat.id}"
+                th:text="${cat.name}"
+                th:selected="${selectedCategory != null && selectedCategory == cat.id}">
+        </option>
+      </select>
+
+      <label for="starFilter">Filter by Stars:</label>
+      <select id="starFilter" name="stars" class="filter-select">
+        <option value="">All Star Ratings</option>
+        <option value="5" th:selected="${selectedStars != null && selectedStars == 5}">5 Stars</option>
+        <option value="4" th:selected="${selectedStars != null && selectedStars == 4}">4+ Stars</option>
+        <option value="3" th:selected="${selectedStars != null && selectedStars == 3}">3+ Stars</option>
+        <option value="2" th:selected="${selectedStars != null && selectedStars == 2}">2+ Stars</option>
+        <option value="1" th:selected="${selectedStars != null && selectedStars == 1}">1+ Stars</option>
+      </select>
+
+      <button class="filter-submit" onclick="applyFilters()">Apply Filters</button>
+      <a class="filter-clear" type="button" href="/recipes">Clear All</a>
   </div>
 
   <!-- Display success/error messages -->
@@ -120,21 +124,16 @@
     }
   });
 
-  function filterByCategory() {
-    const select = document.getElementById('categoryFilter');
-    const categoryId = select.value;
+  function applyFilters() {
+    const categoryId = document.getElementById('categoryFilter').value;
+    const starFilter = document.getElementById('starFilter').value;
 
-    if (categoryId) {
-      window.location.href = `/recipes?category=${categoryId}`;
-    } else {
-      window.location.href = `/recipes`;
-    }
-  }
+    const params = new URLSearchParams();
+    if (categoryId) params.set('category', categoryId);
+    if (starFilter) params.set('stars', starFilter);
 
-  function filterByStars() {
-    const select = document.getElementById('starFilter');
-    const starFilter = select.value;
-    window.location.href = `/recipes?stars=${starFilter}`;
+    const queryString = params.toString();
+    window.location.href = queryString ? `/recipes?${queryString}` : '/recipes';
   }
 </script>
 
@@ -195,6 +194,37 @@
   }
   .filter-select:hover {
     border-color: #3498db;
+  }
+  .filter-submit {
+    padding: 8px 16px;
+    font-size: 1rem;
+    background: white;
+    border: 1px solid #d6dcea;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .filter-submit:hover {
+    border-color: #3498db;
+    background: #f8f9fa;
+  }
+
+  /* Style clear button similarly */
+  .filter-clear {
+    padding: 8px 16px;
+    font-size: 1rem;
+    background: white;
+    border: 1px solid #d6dcea;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+  }
+
+  .filter-clear:hover {
+    border-color: #e74c3c;
+    background: #fef5f5;
   }
   .alert {
     padding: 12px 20px;
