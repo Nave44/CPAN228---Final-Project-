@@ -18,6 +18,7 @@
           <h2 th:text="${recipe.name} ?: 'Unnamed Recipe'">Recipe Name</h2>
           <p class="text" th:text="${recipe.description} ?: 'No description yet.'">Recipe description</p>
           <div class="meta">
+            <span>ID: <span th:text="${recipe.id}">0</span></span>
             <span th:text="${recipe.category != null} ? recipe.category.name : 'Uncategorized'">Category</span>
             <span th:text="${recipe.creator != null} ? recipe.creator.username : 'Creator unknown'">Creator</span>
           </div>

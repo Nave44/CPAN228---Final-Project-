@@ -1,9 +1,9 @@
 package com.example.final_project.repository;
 
-import com.example.final_project.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.example.final_project.model.User;
+
 public interface UserRepository extends JpaRepository<User, Integer> {
-    public User findByUsername(String username);
-    public User saveWithUsername(String username);
+    User findByUsername(String username);
 }

@@ -24,12 +24,6 @@
       </section>
       <a class="button" href="/">Back to recipes</a>
     </article>
-
-    <article class="recipe-detail" th:if="${recipe == null}">
-      <h1>Recipe Not Found</h1>
-      <p>Could not find a recipe with id <span th:text="${id}">0</span>.</p>
-      <a class="button" href="/">Back to recipes</a>
-    </article>
   </main>
   <style>
     body {
