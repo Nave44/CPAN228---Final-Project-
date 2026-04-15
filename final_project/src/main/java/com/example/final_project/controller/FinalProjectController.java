@@ -36,20 +36,30 @@ public class FinalProjectController {
     }
 
     @GetMapping("/recipes")
-    public String recipes(@RequestParam(required = false) Integer category, Model model) {
+    public String recipes(@RequestParam(required = false) Integer category,@RequestParam(required = false) Integer stars, Model model) {
+        List<Recipe> recipes;
+        List<Recipe> finalRecipes;
+
         if (category != null) {
             Category selectedCategory = categoryRepository.findById(category)
                     .orElse(null);
             if (selectedCategory != null) {
-                model.addAttribute("recipes", recipeRepository.findByCategory(Optional.of(selectedCategory)));
+                recipes = recipeRepository.findByCategory(Optional.of(selectedCategory));
                 model.addAttribute("selectedCategory", category);
             } else {
-                model.addAttribute("recipes", recipeRepository.findAll());
+                recipes = recipeRepository.findAll();
             }
         } else {
-            model.addAttribute("recipes", recipeRepository.findAll());
+            recipes = recipeRepository.findAll();
         }
-
+        if (stars != null) {
+            finalRecipes = recipes.stream()
+                                    .filter(recipe -> recipe.checkRecipeByStar(stars))
+                                    .collect(Collectors.toList());
+        }   else {
+            finalRecipes = recipes;
+        }
+        model.addAttribute("recipes", finalRecipes);
         model.addAttribute("categories", categoryRepository.findAll());
         return "recipes";
     }

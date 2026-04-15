@@ -14,13 +14,22 @@
 
   <div class="filter-section">
     <label for="categoryFilter">Filter by category:</label>
-    <select id="categoryFilter" class="category-select" onchange="filterByCategory()">
+    <select id="categoryFilter" class="filter-select" onchange="filterByCategory()">
       <option value="">All Categories</option>
       <option th:each="cat : ${categories}"
               th:value="${cat.id}"
               th:text="${cat.name}"
               th:selected="${selectedCategory != null && selectedCategory == cat.id}">
       </option>
+    </select>
+    <label for="starFilter">Filter by Stars:</label>
+    <select id="starFilter" class="filter-select" onchange="filterByStars()">
+      <option value="">All Star Ratings</option>
+      <option value="5">5 Stars</option>
+      <option value="4">> 4 Stars</option>
+      <option value="3">> 3 Stars</option>
+      <option value="2">> 2 Stars</option>
+      <option value="1">> 1 Stars</option>
     </select>
   </div>
 
@@ -121,6 +130,12 @@
       window.location.href = `/recipes`;
     }
   }
+
+  function filterByStars() {
+    const select = document.getElementById('starFilter');
+    const starFilter = select.value;
+    window.location.href = `/recipes?stars=${starFilter}`;
+  }
 </script>
 
 <style>
@@ -170,7 +185,7 @@
     font-weight: bold;
     margin: 0;
   }
-  .category-select {
+  .filter-select {
     padding: 8px 12px;
     font-size: 1rem;
     border: 1px solid #d6dcea;
@@ -178,7 +193,7 @@
     background: white;
     cursor: pointer;
   }
-  .category-select:hover {
+  .filter-select:hover {
     border-color: #3498db;
   }
   .alert {

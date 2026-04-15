@@ -169,10 +169,10 @@
         instructionRows.forEach((input, index) => {
             const value = input.value.trim();
             if (value) {
-                instructions.push(`${index + 1}. ${value}`);
+                instructions.push(value);
             }
         });
-        document.getElementById("instructions-hidden").value = instructions.join(" ");
+        document.getElementById("instructions-hidden").value = instructions.join(". ");
 
         // Debug: check what's being submitted
         console.log("Ingredients:", document.getElementById("ingredients-hidden").value);

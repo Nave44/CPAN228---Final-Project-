@@ -30,6 +30,15 @@ public class Recipe {
                 .orElse(0.0);
     }
 
+    public Boolean checkRecipeByStar(Integer star) {
+        Double avgStars = getAverageRating();
+        if (avgStars != null) {
+            return avgStars >= star;
+        }   else {
+            return false;
+        }
+    }
+
     // Add this to get rating count
     public Integer getRatingCount() {
         return ratings != null ? ratings.size() : 0;
