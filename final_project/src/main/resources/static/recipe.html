@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe Details</title>
+</head>
+<body>
+  <main class="container">
+    <article class="recipe-detail">
+      <h1 id="recipe-title">Recipe Details</h1>
+      <img id="recipe-image" src="" alt="Recipe image" />
+      <p id="recipe-description"></p>
+      <section>
+        <h2>Ingredients</h2>
+        <p id="recipe-ingredients"></p>
+      </section>
+      <section>
+        <h2>Instructions</h2>
+        <p id="recipe-instructions"></p>
+      </section>
+      <a href="index.html">← Back to recipes</a>
+    </article>
+  </main>
+  <script>
+    const recipes = {
+      1: {
+        title: 'Popeyes luffy 2pcs chicken meal',
+        image: 'no image',
+        description: 'A tasty chicken meal with drink, served as a quick favorite.',
+        ingredients: 'Chicken, breading, drink, side.',
+        instructions: 'Cook the chicken until golden brown, then serve with your drink and side.'
+      },
+      2: {
+        title: 'No image yet :3',
+        image: 'no image',
+        description: 'A placeholder recipe waiting for more details.',
+        ingredients: 'Ingredients will be added soon.',
+        instructions: 'Instructions will be added soon.'
+      }
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const recipeId = params.get('id');
+    const recipe = recipes[recipeId];
+
+    const titleEl = document.getElementById('recipe-title');
+    const imageEl = document.getElementById('recipe-image');
+    const descriptionEl = document.getElementById('recipe-description');
+    const ingredientsEl = document.getElementById('recipe-ingredients');
+    const instructionsEl = document.getElementById('recipe-instructions');
+
+    if (!recipe) {
+      titleEl.textContent = 'Recipe Not Found';
+      descriptionEl.textContent = 'This recipe id does not exist. Go back and select a valid recipe.';
+      imageEl.style.display = 'none';
+      ingredientsEl.textContent = '';
+      instructionsEl.textContent = '';
+    } else {
+      titleEl.textContent = recipe.title;
+      imageEl.src = recipe.image;
+      imageEl.alt = recipe.title;
+      descriptionEl.textContent = recipe.description;
+      ingredientsEl.textContent = recipe.ingredients;
+      instructionsEl.textContent = recipe.instructions;
+    }
+  </script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      color: #222;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+    .container {
+      width: min(900px, 100%);
+    }
+    .recipe-detail {
+      background: #fff;
+      border: 1px solid #d6dcea;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 20px 24px rgba(30, 36, 48, 0.08);
+    }
+    .recipe-detail img {
+      width: 100%;
+      max-height: 360px;
+      object-fit: cover;
+      margin: 0 0 18px;
+      background: #ddd;
+    }
+    .recipe-detail h1,
+    .recipe-detail h2 {
+      margin-top: 0;
+    }
+    .recipe-detail a {
+      display: inline-block;
+      margin-top: 20px;
+      color: #0b5ed7;
+      text-decoration: none;
+    }
+  </style>
+</body>
+</html>

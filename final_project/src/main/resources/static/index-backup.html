@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home page</title>
+</head>
+
+
+
+
+<body>
+  <main class="container">
+    <section class="panel" data-panel="1" data-id="1">
+      <h2>P1</h2>
+      <img src="no image" alt="Popeyes luffy 2pcs chicken meal with a drink"/>
+      <p class="text">placeholder</p>
+      <div class="stars" aria-label="Rate panel 1 from 1 to 5 stars"></div>
+    </section>
+
+    <section class="panel" data-panel="2" data-id="2">
+      <h2>P2</h2>
+      <img src="no image" alt="no image ye  t :3"/>
+      <p class="text">placeholder</p>
+      <div class="stars" aria-label="Rate panel 2 from 1 to 5 stars"></div>
+
+      <form th:action="@{'/recipes/' + ${recipe.id} + '/rate'}" method="post">
+        <div class="stars"></div>
+        <input type="hidden" name="stars" value="0" />
+        <button type="submit">Submit Rating</button>
+      </form>
+    </section>
+
+
+  </main>
+  <script>
+    function setupRating(panel) {
+      const starsContainer = panel.querySelector('.stars');
+      let selected = 0;
+
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement('button');
+        star.className = 'star';
+        star.type = 'button';
+        star.textContent = '★';
+        star.setAttribute('aria-label', `Set rating to ${i}`);
+        star.dataset.value = String(i);
+
+        star.addEventListener('click', (event) => {
+          event.stopPropagation();
+          selected = i;
+          update();
+        });
+
+        starsContainer.appendChild(star);
+      }
+
+      panel.querySelectorAll('button, input').forEach((control) => {
+        control.addEventListener('click', (event) => event.stopPropagation());
+      });
+
+      function update() {
+        const stars = starsContainer.querySelectorAll('.star');
+        stars.forEach((s) => {
+          const value = Number(s.dataset.value);
+          s.classList.toggle('active', value <= selected);
+        });
+      }
+    }
+
+    function setupPanelNavigation(panel) {
+      const recipeId = panel.dataset.id;
+      if (!recipeId) return;
+      panel.style.cursor = 'pointer';
+      panel.addEventListener('click', () => {
+        window.location.href = `/recipes/${recipeId}`;
+      });
+    }
+
+    document.querySelectorAll('.panel').forEach((panel) => {
+      setupRating(panel);
+      setupPanelNavigation(panel);
+    });
+  </script>
+
+
+
+
+
+
+
+
+  <style>
+    :root {
+      --bg: #d3d3d3;
+      --panel: #ffffff;
+      --text: #000000;
+      --border: #d6dcea;
+      --active: #e7e300;
+      --inactive: #c9d1e4;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .container {
+      width: min(900px, 100%);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 20px;
+      box-shadow: 0 20px 24px rgba(30, 36, 48, 0.08);
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+    }
+
+    .text {
+      margin: 0 0 14px;
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .stars {
+      display: inline-flex;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .star {
+      border: none;
+      background: transparent;
+      font-size: 2rem;
+      line-height: 1;
+      color: var(--inactive);
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .star.active {
+      color: var(--active);
+    }
+
+  </style>
+</body>
+</html>

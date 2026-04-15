@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register</title>
+</head>
+
+<body>
+  <main class="container">
+    <section class="panel">
+      <h2>Register</h2>
+
+      <form method="post" action="/register">
+        <label>Username</label>
+        <input type="text" name="username" required />
+
+        <button type="submit">Create Account</button>
+      </form>
+
+      <p class="switch">
+        Already have an account? <a href="login.html">Login</a>
+      </p>
+    </section>
+  </main>
+
+  <style>
+    :root {
+      --bg: #d3d3d3;
+      --panel: #ffffff;
+      --text: #000000;
+      --border: #d6dcea;
+      --active: #d6dcea;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--text);
+    }
+
+    .container {
+      width: min(400px, 100%);
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 20px;
+      box-shadow: 0 20px 24px rgba(30, 36, 48, 0.08);
+    }
+
+    h2 {
+      margin-bottom: 16px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    input {
+      padding: 10px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      border: none;
+      background: var(--active);
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .switch {
+      margin-top: 15px;
+      font-size: 0.9rem;
+    }
+
+    a {
+      text-decoration: none;
+      color: black;
+      font-weight: bold;
+    }
+  </style>
+</body>
+</html>

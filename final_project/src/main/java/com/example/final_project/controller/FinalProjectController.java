@@ -28,7 +28,7 @@ public class FinalProjectController {
         this.recipeRepository = recipeRepository;
     }
 
-    @GetMapping("/home")
+    @GetMapping({"/", "/home"})
     public String home(Model model) {
         model.addAttribute("recipes", recipeRepository.findAll());
         model.addAttribute("categories", categoryRepository.findAll());
@@ -39,6 +39,14 @@ public class FinalProjectController {
     public String recipeByCategory(@PathVariable int id, Model model) {
         model.addAttribute("recipes", recipeRepository.findByCategory(categoryRepository.findById(id)));
         return "category";
+    }
+
+    @GetMapping("/recipes/{id}")
+    public String recipeDetail(@PathVariable int id, Model model) {
+        var recipe = recipeRepository.findById(id).orElse(null);
+        model.addAttribute("recipe", recipe);
+        model.addAttribute("id", id);
+        return "recipe";
     }
 
     @GetMapping("/register")
