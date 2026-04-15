@@ -1,107 +1,184 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Create Recipe</title>
+    <title>Create Recipe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .ingredient-row, .instruction-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .ingredient-row input[type="text"], .instruction-row input[type="text"] {
+            flex: 1;
+            padding: 8px;
+        }
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        #add-ingredient, #add-instruction {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            margin-right: 10px;
+        }
+        label { display: block; margin-top: 16px; font-weight: bold; }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-top: 4px;
+        }
+        textarea { height: 120px; }
+        button[type="submit"] {
+            margin-top: 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-  <main class="container">
-    <header class="page-header">
-      <h1>Create Recipe</h1>
-      <a class="button" th:href="@{/}">Back to Home</a>
-    </header>
 
-    <form class="recipe-form" th:action="@{/createRecipe}" th:object="${recipe}" method="post">
-      <label>
-        Name
-        <input type="text" th:field="*{name}" placeholder="Recipe name" required />
-      </label>
+<h2>Create a Recipe</h2>
 
-      <label>
-        Description
-        <textarea th:field="*{description}" placeholder="Short description"></textarea>
-      </label>
+<form th:action="@{/createRecipe}" th:object="${recipe}" method="post" id="recipeForm">
 
-      <label>
-        Ingredients
-        <textarea th:field="*{ingredients}" placeholder="List ingredients"></textarea>
-      </label>
+    <label>Title</label>
+    <input th:field="*{title}" placeholder="Title for your recipe..." required />
 
-      <label>
-        Instructions
-        <textarea th:field="*{instructions}" placeholder="Step-by-step instructions"></textarea>
-      </label>
+    <label>Description</label>
+    <textarea th:field="*{description}" placeholder="Brief description of your recipe..." required></textarea>
 
-      <button type="submit">Save Recipe</button>
-    </form>
-  </main>
+    <label>Category</label>
+    <select th:field="*{category.id}" required>
+        <option value="">-- Select a Category --</option>
+        <option th:each="cat : ${categories}"
+                th:value="${cat.id}"
+                th:text="${cat.name}">
+        </option>
+    </select>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #edf2f7;
-      color: #111;
-      min-height: 100vh;
-      padding: 24px;
+    <!-- Ingredients Section -->
+    <div class="section-header">
+        <label>Ingredients</label>
+        <button type="button" id="add-ingredient" onclick="addIngredient()">+ Add Ingredient</button>
+    </div>
+    <div id="ingredient-list">
+        <div class="ingredient-row">
+            <input type="text" placeholder="e.g., 2 cups flour" class="ingredient-input"/>
+            <button type="button" class="remove-btn" onclick="removeIngredient(this)">✕</button>
+        </div>
+    </div>
+
+    <!-- Instructions Section -->
+    <div class="section-header">
+        <label>Instructions</label>
+        <button type="button" id="add-instruction" onclick="addInstruction()">+ Add Instruction</button>
+    </div>
+    <div id="instruction-list">
+        <div class="instruction-row">
+            <input type="text" placeholder="e.g., Preheat oven to 350°F" class="instruction-input"/>
+            <button type="button" class="remove-btn" onclick="removeInstruction(this)">✕</button>
+        </div>
+    </div>
+
+    <!-- Hidden fields that store the combined strings -->
+    <input type="hidden" th:field="*{ingredients}" id="ingredients-hidden"/>
+    <input type="hidden" th:field="*{instructions}" id="instructions-hidden"/>
+
+    <button type="submit" onclick="combineData()">Submit Recipe</button>
+
+</form>
+
+<script>
+    function addIngredient() {
+        const row = document.createElement("div");
+        row.classList.add("ingredient-row");
+        row.innerHTML = `
+            <input type="text" placeholder="e.g., 2 cups flour" class="ingredient-input"/>
+            <button type="button" class="remove-btn" onclick="removeIngredient(this)">✕</button>
+        `;
+        document.getElementById("ingredient-list").appendChild(row);
     }
-    .container {
-      width: min(800px, 100%);
-      margin: 0 auto;
+
+    function removeIngredient(btn) {
+        const list = document.getElementById("ingredient-list");
+        if (list.children.length > 1) {
+            btn.parentElement.remove();
+        }
     }
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 28px;
-      gap: 16px;
+
+    function addInstruction() {
+        const row = document.createElement("div");
+        row.classList.add("instruction-row");
+        row.innerHTML = `
+            <input type="text" placeholder="e.g., Preheat oven to 350°F" class="instruction-input"/>
+            <button type="button" class="remove-btn" onclick="removeInstruction(this)">✕</button>
+        `;
+        document.getElementById("instruction-list").appendChild(row);
     }
-    .button {
-      display: inline-block;
-      padding: 10px 18px;
-      background: #ffffff;
-      color: black;
-      text-decoration: none;
-      border-radius: 0;
-      font-weight: 600;
+
+    function removeInstruction(btn) {
+        const list = document.getElementById("instruction-list");
+        if (list.children.length > 1) {
+            btn.parentElement.remove();
+        }
     }
-    .recipe-form {
-      display: grid;
-      gap: 18px;
-      background: white;
-      border: 1px solid #d6dcea;
-      padding: 24px;
-      box-shadow: 0 16px 24px rgba(23, 28, 39, 0.08);
+
+    function combineData() {
+        // Combine ingredients
+        const ingredientRows = document.querySelectorAll(".ingredient-input");
+        const ingredients = [];
+        ingredientRows.forEach(input => {
+            const value = input.value.trim();
+            if (value) {
+                ingredients.push(value);
+            }
+        });
+        document.getElementById("ingredients-hidden").value = ingredients.join(", ");
+
+        // Combine instructions
+        const instructionRows = document.querySelectorAll(".instruction-input");
+        const instructions = [];
+        instructionRows.forEach((input, index) => {
+            const value = input.value.trim();
+            if (value) {
+                instructions.push(`${index + 1}. ${value}`);
+            }
+        });
+        document.getElementById("instructions-hidden").value = instructions.join(" ");
+
+        // Debug: check what's being submitted
+        console.log("Ingredients:", document.getElementById("ingredients-hidden").value);
+        console.log("Instructions:", document.getElementById("instructions-hidden").value);
     }
-    label {
-      display: grid;
-      gap: 8px;
-      font-weight: 600;
-      color: #1f2937;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d6dcea;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-family: inherit;
-    }
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-    button {
-      width: max-content;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 0;
-      background: #1f2937;
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-    }
-  </style>
+</script>
+
 </body>
 </html>

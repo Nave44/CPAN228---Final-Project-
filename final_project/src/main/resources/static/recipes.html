@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipe Home</title>
+</head>
+<body>
+<main class="container">
+    <header class="page-header">
+        <h1>Recipes</h1>
+        <a class="button" th:href="@{/createRecipe}">Create Recipe</a>
+    </header>
+
+    <!-- Display success/error messages -->
+    <div th:if="${message}" class="alert success" th:text="${message}"></div>
+    <div th:if="${error}" class="alert error" th:text="${error}"></div>
+
+    <div class="panel-grid">
+        <article class="panel" th:each="recipe : ${recipes}" th:data-recipe-id="${recipe.id}">
+            <a class="panel-link" th:href="@{/recipes/{id}(id=${recipe.id})}">
+                <h2 th:text="${recipe.title ?: 'Unnamed Recipe'}">Recipe Name</h2>
+                <p class="text" th:text="${recipe.description ?: 'No description yet.'}">Recipe description</p>
+                <div class="meta">
+                    <span th:text="${recipe.category != null ? recipe.category.name : 'Uncategorized'}">Category</span>
+                    <span th:text="${recipe.creator != null ? recipe.creator.username : 'Creator unknown'}">Creator</span>
+                </div>
+            </a>
+
+            <!-- Display average rating -->
+            <div class="average-rating" th:if="${recipe.getAverageRating() != null}">
+                <div class="stars-display">
+            <span th:each="i, iterStat : ${#numbers.sequence(1, 5)}">
+              <span th:if="${iterStat.index < recipe.getAverageRating()}" class="star-filled">★</span>
+              <span th:unless="${iterStat.index < recipe.getAverageRating()}" class="star-empty">★</span>
+            </span>
+                    <span class="rating-text" th:text="|${#numbers.formatDecimal(recipe.getAverageRating(), 1, 1)}/5|"></span>
+                    <span class="rating-count" th:text="|(${recipe.getRatingCount()} ratings)|"></span>
+                </div>
+            </div>
+            <div class="average-rating" th:unless="${recipe.getAverageRating() != null}">
+                <div class="no-ratings">No ratings yet</div>
+            </div>
+
+            <!-- Rating form -->
+            <div class="rating-row">
+                <div class="stars" aria-label="Rate this recipe"></div>
+            </div>
+        </article>
+    </div>
+</main>
+
+<script>
+    document.querySelectorAll('.panel').forEach((panel) => {
+        const starsContainer = panel.querySelector('.stars');
+        const recipeId = panel.dataset.recipeId;
+        let selected = 0;
+
+        // Create star buttons for rating
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement('button');
+            star.type = 'button';
+            star.className = 'star';
+            star.textContent = '★';
+            star.setAttribute('aria-label', `Rate this recipe ${i} stars`);
+            star.dataset.value = String(i);
+
+            star.addEventListener('click', (event) => {
+                event.stopPropagation();
+                selected = i;
+                updateStars();
+                submitRating(selected);
+            });
+
+            starsContainer.appendChild(star);
+        }
+
+        function updateStars() {
+            panel.querySelectorAll('.star').forEach((button) => {
+                const value = Number(button.dataset.value);
+                button.classList.toggle('active', value <= selected);
+            });
+        }
+
+        function submitRating(rating) {
+            // Create a form and submit it via POST
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/recipes/${recipeId}/rate`;
+
+            const ratingInput = document.createElement('input');
+            ratingInput.type = 'hidden';
+            ratingInput.name = 'rating';
+            ratingInput.value = rating;
+
+            form.appendChild(ratingInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+</script>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #edf2f7;
+        color: #111;
+        min-height: 100vh;
+        padding: 24px;
+    }
+    .container {
+        width: min(1000px, 100%);
+        margin: 0 auto;
+    }
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        gap: 16px;
+    }
+    .page-header h1 {
+        margin: 0;
+        font-size: 2rem;
+    }
+    .button {
+        display: inline-block;
+        padding: 10px 18px;
+        background: #ffffff;
+        color: black;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        border: 1px solid #d6dcea;
+    }
+    .alert {
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        animation: fadeOut 3s forwards;
+    }
+    .alert.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .alert.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    @keyframes fadeOut {
+        0% { opacity: 1; }
+        70% { opacity: 1; }
+        100% { opacity: 0; visibility: hidden; }
+    }
+    .panel-grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .panel {
+        background: white;
+        border: 1px solid #d6dcea;
+        border-radius: 0;
+        overflow: hidden;
+        box-shadow: 0 16px 28px rgba(23, 28, 39, 0.08);
+    }
+    .panel-link {
+        color: inherit;
+        text-decoration: none;
+        display: block;
+        padding: 24px;
+    }
+    .panel-link:hover h2 {
+        color: #3498db;
+    }
+    .panel h2 {
+        margin: 0 0 14px;
+        font-size: 1.4rem;
+    }
+    .text {
+        margin: 0 0 18px;
+        line-height: 1.6;
+        color: #333;
+        min-height: 72px;
+    }
+    .meta {
+        font-size: 0.95rem;
+        color: #5b6674;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+    }
+    .average-rating {
+        padding: 0 24px 12px;
+        border-top: 1px solid #f1f2f6;
+    }
+    .stars-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .star-filled {
+        color: #fbbf24;
+        font-size: 1.2rem;
+    }
+    .star-empty {
+        color: #d1d5db;
+        font-size: 1.2rem;
+    }
+    .rating-text {
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #333;
+    }
+    .rating-count {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+    .no-ratings {
+        font-size: 0.85rem;
+        color: #9ca3af;
+        font-style: italic;
+    }
+    .rating-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 24px 20px;
+        border-top: 1px solid #f1f2f6;
+    }
+    .rating-label {
+        font-size: 0.95rem;
+        color: #5b6674;
+        white-space: nowrap;
+    }
+    .stars {
+        display: inline-flex;
+        gap: 6px;
+    }
+    .star {
+        border: none;
+        background: transparent;
+        font-size: 1.4rem;
+        color: #d1d5db;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        transition: transform 0.1s ease;
+    }
+    .star:hover {
+        transform: scale(1.1);
+    }
+    .star.active {
+        color: #fbbf24;
+    }
+</style>
+</body>
+</html>

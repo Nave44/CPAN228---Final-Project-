@@ -2,18 +2,38 @@ package com.example.final_project.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 
 @Entity
+@Table(name = "recipes")
 public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
-    String name;
+    Integer id;
+    String title;
     String description;
     String ingredients;
     String instructions;
+    @OneToMany(mappedBy = "recipe")
+    List<Rating> ratings;
     @ManyToOne private User creator;
     @ManyToOne private Category category;
+
+    public Double getAverageRating() {
+        if (ratings == null || ratings.isEmpty()) {
+            return null;
+        }
+        return ratings.stream()
+                .mapToInt(Rating::getStars)
+                .average()
+                .orElse(0.0);
+    }
+
+    // Add this to get rating count
+    public Integer getRatingCount() {
+        return ratings != null ? ratings.size() : 0;
+    }
 
     public User getCreator() {
         return creator;
@@ -23,20 +43,20 @@ public class Recipe {
         return category;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {

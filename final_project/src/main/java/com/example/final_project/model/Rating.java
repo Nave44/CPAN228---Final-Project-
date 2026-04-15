@@ -3,19 +3,20 @@ package com.example.final_project.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "ratings")
 public class Rating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+    Integer id;
     int stars;
     @ManyToOne private User rater;
     @ManyToOne private Recipe recipe;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -1,20 +1,17 @@
 package com.example.final_project.controller;
 
+import com.example.final_project.model.*;
+import com.example.final_project.repository.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.final_project.model.Recipe;
-import com.example.final_project.model.User;
-import com.example.final_project.repository.CategoryRepository;
-import com.example.final_project.repository.RatingRespository;
-import com.example.final_project.repository.RecipeRepository;
-import com.example.final_project.repository.UserRepository;
-// TODO Controller: post mapping to add ratings to recipes, post mapping for recipes, get mapping for all recipes, get for recipes by category
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 @Controller
 public class FinalProjectController {
@@ -22,82 +19,124 @@ public class FinalProjectController {
     User currentUser;
 
     private final UserRepository userRepository;
-    private final RatingRespository ratingRespository;
+    private final RatingRepository ratingRepository;
     private final CategoryRepository categoryRepository;
     private final RecipeRepository recipeRepository;
 
-    public FinalProjectController(UserRepository userRepository, RatingRespository ratingRespository, CategoryRepository categoryRepository, RecipeRepository recipeRepository) {
+    public FinalProjectController(UserRepository userRepository, RatingRepository ratingRepository, CategoryRepository categoryRepository, RecipeRepository recipeRepository) {
         this.userRepository = userRepository;
-        this.ratingRespository = ratingRespository;
+        this.ratingRepository = ratingRepository;
         this.categoryRepository = categoryRepository;
         this.recipeRepository = recipeRepository;
     }
 
-    @GetMapping({"/", "/home"})
-    public String home(Model model) {
-        model.addAttribute("recipes", recipeRepository.findAll());
-        model.addAttribute("categories", categoryRepository.findAll());
+    @GetMapping("/")
+    public String home() {
         return "home";
     }
 
-    @GetMapping("/category/{id}")
-    public String recipeByCategory(@PathVariable int id, Model model) {
-        model.addAttribute("recipes", recipeRepository.findByCategory(categoryRepository.findById(id)));
-        return "category";
+    @GetMapping("/recipes")
+    public String recipes(@RequestParam(required = false) Integer category, Model model) {
+        if (category != null) {
+            Category selectedCategory = categoryRepository.findById(category)
+                    .orElse(null);
+            if (selectedCategory != null) {
+                model.addAttribute("recipes", recipeRepository.findByCategory(Optional.of(selectedCategory)));
+                model.addAttribute("selectedCategory", category);
+            } else {
+                model.addAttribute("recipes", recipeRepository.findAll());
+            }
+        } else {
+            model.addAttribute("recipes", recipeRepository.findAll());
+        }
+
+        model.addAttribute("categories", categoryRepository.findAll());
+        return "recipes";
+    }
+
+    @PostMapping("/recipes/{id}/rate")
+    public String rateRecipe(@PathVariable int id, @RequestParam int rating, RedirectAttributes redirectAttributes) {
+        try {
+            Recipe recipe = recipeRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
+
+            Rating existingRating = ratingRepository.findByRecipeAndRater(recipe, currentUser);
+
+            if (existingRating != null) {
+                existingRating.setStars(rating);
+                ratingRepository.save(existingRating);
+                redirectAttributes.addFlashAttribute("message", "Rating updated to " + rating + " stars!");
+            } else {
+                Rating newRating = new Rating();
+                newRating.setStars(rating);
+                newRating.setRecipe(recipe);
+                newRating.setRater(currentUser);
+                ratingRepository.save(newRating);
+                redirectAttributes.addFlashAttribute("message", "Thank you for rating " + rating + " stars!");
+            }
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to save rating");
+        }
+
+        return "redirect:/recipes";
     }
 
     @GetMapping("/recipes/{id}")
     public String recipeDetail(@PathVariable int id, Model model) {
         var recipe = recipeRepository.findById(id).orElse(null);
+
+        if (recipe != null && recipe.getInstructions() != null) {
+            List<String> instructionList = Arrays.stream(recipe.getInstructions().split("\\. "))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+            model.addAttribute("instructionList", instructionList);
+        }
+
         model.addAttribute("recipe", recipe);
         model.addAttribute("id", id);
         return "recipe";
     }
 
     @GetMapping("/register")
-    public String registerPage() {
-        return "redirect:/register.html";
+    public String registerPage(Model model) {
+        model.addAttribute("user", new User());
+        return "register";
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam String username) {
-        User existingUser = userRepository.findByUsername(username);
-        if (existingUser != null) {
-            currentUser = existingUser;
-        } else {
-            User user = new User();
-            user.setUsername(username);
-            currentUser = userRepository.save(user);
-        }
-        return "redirect:/home";
+    public String register(@ModelAttribute User user) {
+        currentUser = userRepository.save(user);
+        return "redirect:/recipes";
     }
 
     @GetMapping("/login")
-    public String loginPage() {
-        return "redirect:/login.html";
+    public String loginPage(Model model) {
+        model.addAttribute("user", new User());
+        return "login";
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String username) {
-        currentUser = userRepository.findByUsername(username);
-        if (currentUser == null) {
-            return "redirect:/register";
-        }
-        return "redirect:/home";
+    public String login(@ModelAttribute User user) {
+        currentUser = userRepository.findByUsername(user.getUsername());
+        return "redirect:/recipes";
     }
 
     @GetMapping("/createRecipe")
     public String createRecipePage(Model model) {
         model.addAttribute("recipe", new Recipe());
+        model.addAttribute("categories", categoryRepository.findAll());
         return "createRecipe";
     }
 
     @PostMapping("/createRecipe")
     public String createRecipe(@ModelAttribute Recipe recipe) {
-        if (currentUser != null) {
-            recipe.setCreator(currentUser);
-        }
+        recipe.setCreator(currentUser);
+        Category category = categoryRepository.findById(recipe.getCategory().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid category"));
+        recipe.setCategory(category);
         recipeRepository.save(recipe);
-        return "redirect:/home";
+        return "redirect:/recipes";
     }
 }

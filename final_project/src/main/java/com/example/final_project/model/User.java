@@ -5,14 +5,15 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name= "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+    Integer id;
     String username;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "rater")
     List<Rating> ratings;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "creator")
     List<Recipe> recipes;
 
     public List<Recipe> getRecipes() {
@@ -31,11 +32,11 @@ public class User {
         this.ratings = ratings;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
