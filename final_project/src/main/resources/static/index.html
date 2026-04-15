@@ -1,27 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8" />2
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Home page</title>
 </head>
+
+
+
+
 <body>
   <main class="container">
     <section class="panel" data-panel="1">
       <h2>P1</h2>
-      <img src="no image" alt="no image yet :3"/>
+      <img src="no image" alt="Popeyes luffy 2pcs chicken meal with a drink"/>
       <p class="text">placeholder</p>
       <div class="stars" aria-label="Rate panel 1 from 1 to 5 stars"></div>
     </section>
 
     <section class="panel" data-panel="2">
       <h2>P2</h2>
-      <img src="no image" alt="no image yet :3"/>
+      <img src="no image" alt="no image ye  t :3"/>
       <p class="text">placeholder</p>
       <div class="stars" aria-label="Rate panel 2 from 1 to 5 stars"></div>
-    </section>
-  </main>
 
+      <form th:action="@{'/recipes/' + ${recipe.id} + '/rate'}" method="post">
+        <div class="stars"></div>
+        <input type="hidden" name="stars" value="0" />
+        <button type="submit">Submit Rating</button>
+      </form>
+    </section>
+
+
+  </main>
   <script>
     function setupRating(panel) {
       const starsContainer = panel.querySelector('.stars');
@@ -54,6 +66,13 @@
 
     document.querySelectorAll('.panel').forEach(setupRating);
   </script>
+
+
+
+
+
+
+
 
   <style>
     :root {
